@@ -315,8 +315,10 @@ td.num{text-align:right;font-variant-numeric:tabular-nums}
         <div class="arquivos-lista" id="lista-de-manual"></div></div>
     </div>
     <div class="linha-config">
+      <div class="campo"><label>Data (aparece na imagem)</label><input type="date" id="de-data"></div>
       <button class="btn" id="btn-de-gerar" disabled>⚙️ Calcular desempenho</button>
       <button class="btn sec" id="btn-de-excel" style="display:none">⬇️ Baixar Excel</button>
+      <button class="btn sec" id="btn-de-img" style="display:none">🖼️ Baixar Imagem</button>
     </div>
     <div class="status-msg" id="de-msg"></div>
     <div id="de-kpis"></div>
@@ -1037,31 +1039,120 @@ document.getElementById('btn-de-gerar').addEventListener('click',()=>{
       if(ag[m.nome]){ ag[m.nome].total+=m.total; ag[m.nome].m15+=m.m15; ag[m.nome].origem='📞+💬'; }
       else ag[m.nome]={nome:m.nome,total:m.total,m15:m.m15,origem:'💬 Chat (manual)'};
     }
+    Object.values(ag).forEach(a=>a.dif=a.total-a.m15);
     deDados = Object.values(ag).sort((a,b)=>b.m15-a.m15);
     if(!deDados.length) throw new Error('Nenhum agente encontrado.');
     const tot=deDados.reduce((s,a)=>s+a.total,0), tot15=deDados.reduce((s,a)=>s+a.m15,0);
     const kpi=(v,l)=>`<div class="kpi"><b>${v}</b><span>${l}</span></div>`;
-    document.getElementById('de-kpis').innerHTML=`<div class="kpis">${kpi(deDados.length,'agentes')}${kpi(tot.toLocaleString('pt-BR'),'atendimentos')}${kpi(tot15.toLocaleString('pt-BR'),'≥15s')}${kpi((tot?tot15/tot*100:0).toFixed(1).replace('.',',')+'%','% ≥15s geral')}${kpi(deManuais.length,'💬 chat manual')}</div>`;
-    let html='<div class="tabela-wrap"><table><tr><th>#</th><th>Agente</th><th>Origem</th><th>Total</th><th>≥15s</th><th>% ≥15s</th></tr>';
+    document.getElementById('de-kpis').innerHTML=`<div class="kpis">${kpi(deDados.length,'agentes')}${kpi(tot.toLocaleString('pt-BR'),'geral')}${kpi(tot15.toLocaleString('pt-BR'),'≥15s')}${kpi((tot-tot15).toLocaleString('pt-BR'),'diferença')}${kpi(deManuais.length,'💬 chat manual')}</div>`;
+    let html='<div class="tabela-wrap"><table><tr><th>#</th><th>Agente</th><th>Origem</th><th>≥15s</th><th>Geral</th><th>Diferença</th></tr>';
     deDados.forEach((a,i)=>{
-      html+=`<tr><td>${i+1}</td><td>${a.nome}</td><td>${a.origem}</td><td class="num">${a.total.toLocaleString('pt-BR')}</td><td class="num">${a.m15.toLocaleString('pt-BR')}</td><td class="num">${(a.total?a.m15/a.total*100:0).toFixed(1).replace('.',',')}%</td></tr>`;
+      const chip = a.dif>50?`<span class="chip vermelho">⚠ ${a.dif}</span>` : a.dif>30?`<span class="chip amarelo">⚠ ${a.dif}</span>` : `<span class="chip verde">${a.dif}</span>`;
+      html+=`<tr><td>${i+1}º</td><td>${a.nome}</td><td>${a.origem}</td><td class="num">${a.m15.toLocaleString('pt-BR')}</td><td class="num">${a.total.toLocaleString('pt-BR')}</td><td class="num">${chip}</td></tr>`;
     });
     document.getElementById('de-tabela').innerHTML=html+'</table></div>';
     document.getElementById('btn-de-excel').style.display='inline-block';
+    document.getElementById('btn-de-img').style.display='inline-block';
     msg('de-msg','ok','✅ Desempenho calculado para '+deDados.length+' agentes ('+(deLig?deLig.length+' ligações do CSV':'sem CSV')+(deManuais.length?' + '+deManuais.length+' do chat manual':'')+').');
   }catch(e){ msg('de-msg','erro','❌ '+e.message); }
 });
 document.getElementById('btn-de-excel').addEventListener('click',()=>{
   if(!xlsxPronto()) return;
-  const dados=[[CREDITO],['📈 Desempenho por Agente'],
-    ['ℹ️ Atendimentos ≥15 segundos indicam conversas reais. Agentes 📞 vêm do CSV de ligações do 3C+; agentes 💬 foram preenchidos manualmente (chat). Ordenado por ≥15s.'],
-    [],['#','Agente','Origem','Total','≥15s','% ≥15s']];
-  deDados.forEach((a,i)=>dados.push([i+1,a.nome,a.origem,a.total,a.m15,(a.total?a.m15/a.total*100:0).toFixed(1).replace('.',',')+'%']));
+  const dados=[[CREDITO],['📈 Desempenho dos Colaboradores'],
+    ['ℹ️ Diferença = Geral menos ≥15s. Até 30 é normal 🟢 · 31 a 50 requer atenção 🟡 · acima de 50 precisa ser analisado 🔴. Agentes 📞 vêm do CSV do 3C+; 💬 foram preenchidos manualmente (chat). Ordenado por ≥15s.'],
+    [],['#','Agente','Origem','≥15s','Geral','Diferença']];
+  deDados.forEach((a,i)=>dados.push([i+1+'º',a.nome,a.origem,a.m15,a.total, (a.dif>50?'🔴 ':a.dif>30?'🟡 ':'🟢 ')+a.dif]));
+  const tot=deDados.reduce((s,a)=>s+a.total,0), tot15=deDados.reduce((s,a)=>s+a.m15,0);
+  dados.push(['','TOTAL DA EQUIPE','',tot15,tot,(tot-tot15)]);
   const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, abaBonita(dados,[5,28,18,12,12,10],{titleRow:1,explicRows:[2],headerRows:[4],dataStart:5}),'Desempenho');
+  XLSX.utils.book_append_sheet(wb, abaBonita(dados,[5,28,18,12,12,12],{titleRow:1,explicRows:[2],headerRows:[4],dataStart:5}),'Desempenho');
   const hoje=new Date();
   baixaXLSX(wb,'Desempenho_iGreen_'+String(hoje.getDate()).padStart(2,'0')+'-'+String(hoje.getMonth()+1).padStart(2,'0')+'.xlsx');
 });
+
+document.getElementById('btn-de-img').addEventListener('click',deExportaImagem);
+function deExportaImagem(){
+  if(!deDados||!deDados.length) return;
+  const dataISO = document.getElementById('de-data').value || new Date().toISOString().slice(0,10);
+  const [aa,mm,dd] = dataISO.split('-');
+  const dataBR = dd+'/'+mm+'/'+aa;
+  const W=800, rowH=38, headH=118, totH=48, footH=66;
+  const H=headH + deDados.length*rowH + totH + footH;
+  const cv=document.createElement('canvas'); cv.width=W*2; cv.height=H*2;
+  const ctx=cv.getContext('2d'); ctx.scale(2,2);
+  const F='"Segoe UI", system-ui, sans-serif';
+  function rrect(x,y,w,hh,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+hh,r); ctx.arcTo(x+w,y+hh,x,y+hh,r); ctx.arcTo(x,y+hh,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+  function pill(txt,cx,cy,bg,fg,bold,minW){
+    ctx.font=(bold?'700 ':'600 ')+'12px '+F;
+    const w=Math.max(minW||44, ctx.measureText(txt).width+18);
+    ctx.fillStyle=bg; rrect(cx-w/2,cy-11,w,22,11); ctx.fill();
+    ctx.fillStyle=fg; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(txt,cx,cy+1);
+  }
+  function badge(txt,x,cy,bg,fg){
+    ctx.font='700 8px '+F;
+    const w=ctx.measureText(txt).width+10;
+    ctx.fillStyle=bg; rrect(x,cy-8,w,16,5); ctx.fill();
+    ctx.fillStyle=fg; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(txt,x+5,cy+1);
+    return w;
+  }
+  // fundo
+  ctx.fillStyle='#0B2417'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#0E2C1C'; ctx.fillRect(0,0,W,headH-24);
+  // sol decorativo
+  ctx.fillStyle='rgba(45,189,110,.12)'; ctx.beginPath(); ctx.arc(W-40,26,20,0,7); ctx.fill();
+  // cabeçalho
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.fillStyle='#2DBD6E'; ctx.font='700 12px '+F; ctx.fillText('⚡ iGREEN ENERGY',24,28);
+  ctx.fillStyle='#FFFFFF'; ctx.font='700 20px '+F; ctx.fillText('Desempenho dos Colaboradores',24,54);
+  ctx.fillStyle='#123B28'; rrect(24,64,110,20,10); ctx.fill();
+  ctx.fillStyle='#8FE3B4'; ctx.font='600 11px '+F; ctx.fillText('📅 '+dataBR,32,78);
+  // colunas
+  const X15=470, XG=590, XD=712;
+  ctx.fillStyle='#2DBD6E'; ctx.font='700 10px '+F;
+  ctx.fillText('COLABORADOR',24,headH-10);
+  ctx.textAlign='center';
+  ctx.fillText('≥ 15S ↓',X15,headH-10); ctx.fillText('GERAL',XG,headH-10); ctx.fillText('DIFERENÇA',XD,headH-10);
+  ctx.strokeStyle='rgba(45,189,110,.35)'; ctx.beginPath(); ctx.moveTo(24,headH-4); ctx.lineTo(W-24,headH-4); ctx.stroke();
+  // linhas
+  deDados.forEach((a,i)=>{
+    const y=headH+i*rowH, cy=y+rowH/2;
+    if(i%2===1){ ctx.fillStyle='rgba(255,255,255,.025)'; ctx.fillRect(0,y,W,rowH); }
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillStyle='#6FA88A'; ctx.font='600 11px '+F; ctx.fillText((i+1)+'º',24,cy+1);
+    let bx=52;
+    if(a.origem.includes('📞')) bx += badge('LIG',bx,cy,'#1D8A4F','#D6F0E3')+5;
+    if(a.origem.includes('💬')) bx += badge('CHAT',bx,cy,'#B45309','#FEF3C7')+5;
+    ctx.fillStyle='#FFFFFF'; ctx.font='600 13px '+F; ctx.fillText(a.nome, bx+4, cy+1);
+    pill(a.m15.toLocaleString('pt-BR'), X15, cy, '#175B3D','#A7F3C9');
+    pill(a.total.toLocaleString('pt-BR'), XG, cy, '#123B28','#CFE9DB');
+    if(a.dif>50)      pill('⚠ '+a.dif, XD, cy, '#4A1414','#FCA5A5', true);
+    else if(a.dif>30) pill('⚠ '+a.dif, XD, cy, '#42350A','#FBD38D', true);
+    else              pill(String(a.dif), XD, cy, 'rgba(45,189,110,.10)','#7CE0A8');
+    ctx.strokeStyle='rgba(255,255,255,.05)'; ctx.beginPath(); ctx.moveTo(24,y+rowH); ctx.lineTo(W-24,y+rowH); ctx.stroke();
+  });
+  // total
+  const yT=headH+deDados.length*rowH, cyT=yT+totH/2;
+  const tot=deDados.reduce((s,a)=>s+a.total,0), tot15=deDados.reduce((s,a)=>s+a.m15,0);
+  ctx.fillStyle='rgba(45,189,110,.10)'; ctx.fillRect(0,yT,W,totH);
+  ctx.textAlign='left'; ctx.fillStyle='#FFFFFF'; ctx.font='700 13px '+F; ctx.fillText('TOTAL DA EQUIPE',24,cyT+1);
+  pill(tot15.toLocaleString('pt-BR'), X15, cyT, '#1D8A4F','#FFFFFF', true);
+  pill(tot.toLocaleString('pt-BR'),  XG,  cyT, '#175B3D','#FFFFFF', true);
+  pill(String(tot-tot15), XD, cyT, '#4A1414','#FCA5A5', true);
+  // rodapé
+  ctx.textAlign='center'; ctx.fillStyle='#5FA57F'; ctx.font='600 10px '+F;
+  ctx.fillText('Processado automaticamente · iGreen Energy · Desenvolvido por jennifer.silveira@igreenenergy.com.br', W/2, yT+totH+24);
+  ctx.fillStyle='#C9A24B'; ctx.font='600 10px '+F;
+  ctx.fillText('⚠ Diferença = Geral menos ≥15s. Até 30 é normal · 31 a 50 requer atenção · acima de 50 precisa ser analisado.', W/2, yT+totH+42);
+  // baixa
+  cv.toBlob(b=>{
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(b);
+    a.download='Desempenho_'+dd+'-'+mm+'.png';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  },'image/png');
+}
+document.getElementById('de-data').value = new Date().toISOString().slice(0,10);
 
 /* ================================================================
    5) CONVERSÃO PÓS-CONTATO (ligações × pagos)
