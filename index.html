@@ -12,6 +12,10 @@
     'https://unpkg.com/xlsx-js-style@1.2.0/dist/xlsx.bundle.js',
     'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'
   ];
+  const z=document.createElement('script');
+  z.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+  z.onerror=()=>{ const z2=document.createElement('script'); z2.src='https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'; document.head.appendChild(z2); };
+  document.head.appendChild(z);
   (function carrega(i){
     if(i>=fontes.length) return;
     const s=document.createElement('script');
@@ -234,6 +238,698 @@ td.num{text-align:right;font-variant-numeric:tabular-nums}
 #pg-gerador .pag-info { color: var(--cinza-tx); }
 #pg-gerador .empty { text-align: center; padding: 52px 20px; color: var(--cinza-tx); }
 #pg-gerador .empty-icon { font-size: 2.4rem; margin-bottom: 10px; }
+
+/* ===== Guia de Atendimento (escopo #pg-guia) ===== */
+#pg-guia {
+  --bg: #1e5c2a;
+  --surface: #236b30;
+  --surface2: #265f2e;
+  --border: rgba(255,255,255,0.10);
+  --border2: rgba(255,255,255,0.16);
+  --green: #7edc9a;
+  --green-light: rgba(126,220,154,0.15);
+  --green-mid: #5dca7e;
+  --text: #f0faf3;
+  --text2: #b8dfc3;
+  --text3: #7aaa8a;
+  --red: #ff7070;
+  --red-light: rgba(255,112,112,0.15);
+  --amber: #ffc97a;
+  --amber-light: rgba(255,201,122,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+#pg-guia * { box-sizing: border-box; margin: 0; padding: 0; }
+#pg-guia {
+  background: var(--bg);
+  font-family: var(--font);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+#pg-guia .page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+#pg-guia /* ── header ── */
+.header {
+  padding: 24px 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#pg-guia .header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#pg-guia .logo-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--green);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#pg-guia .logo-mark svg { width: 16px; height: 16px; }
+#pg-guia .brand-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+#pg-guia .brand-sub {
+  font-size: 11px;
+  color: var(--text2);
+  margin-top: 1px;
+}
+#pg-guia .header-score {
+  text-align: right;
+}
+#pg-guia .header-score-num {
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--green);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  transition: color .25s;
+}
+#pg-guia .header-score-lbl {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 2px;
+  letter-spacing: 0.02em;
+}
+#pg-guia /* ── score card ── */
+.score-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 12px;
+}
+#pg-guia .score-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+#pg-guia .score-num {
+  font-size: 42px;
+  font-weight: 300;
+  color: var(--green);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  transition: color .25s;
+}
+#pg-guia .score-unit {
+  font-size: 15px;
+  color: var(--text2);
+  transition: color .25s;
+}
+#pg-guia .score-status {
+  font-size: 12px;
+  color: var(--text2);
+  margin-bottom: 14px;
+  transition: color .2s;
+}
+#pg-guia .progress-track {
+  background: var(--bg);
+  border-radius: 3px;
+  height: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+#pg-guia .progress-fill {
+  height: 3px;
+  border-radius: 3px;
+  background: var(--green-mid);
+  transition: width .4s cubic-bezier(.4,0,.2,1), background .3s;
+}
+#pg-guia .score-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text3);
+}
+#pg-guia .next-hint {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 10px;
+  min-height: 14px;
+}
+#pg-guia .next-hint span { color: var(--green); }
+#pg-guia .flash-red { animation: flashRed .6s ease; }
+#pg-guia /* ── section label ── */
+.sec-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text3);
+  margin: 20px 0 8px;
+}
+#pg-guia .sec-label.danger { color: var(--red); opacity: .7; }
+#pg-guia /* ── checklist ── */
+.chk-group {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+#pg-guia .chk-section { border-bottom: 1px solid var(--border); }
+#pg-guia .chk-section:last-child { border-bottom: none; }
+#pg-guia .chk-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .1s;
+}
+#pg-guia .chk-header:active { background: rgba(0,0,0,0.1); }
+#pg-guia .chk-header-text { flex: 1; min-width: 0; }
+#pg-guia .chk-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+#pg-guia .chk-desc {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+#pg-guia .chk-badge {
+  font-size: 11px;
+  color: var(--text3);
+  flex-shrink: 0;
+  transition: color .2s;
+  font-variant-numeric: tabular-nums;
+}
+#pg-guia .chk-badge.full { color: var(--green); }
+#pg-guia .chk-sec-bar {
+  height: 2px;
+  background: var(--bg);
+  overflow: hidden;
+}
+#pg-guia .chk-sec-fill {
+  height: 2px;
+  background: var(--green-mid);
+  transition: width .3s;
+}
+#pg-guia .chk-items { display: none; }
+#pg-guia .chk-items.open { display: block; }
+#pg-guia .chk-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 16px 10px 16px;
+  cursor: pointer;
+  border-top: 1px solid var(--border);
+  transition: background .1s;
+}
+#pg-guia .chk-item:active { background: var(--bg); }
+#pg-guia .chk-item.checked { opacity: .45; }
+#pg-guia .chk-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all .15s;
+  background: var(--surface);
+}
+#pg-guia .chk-box.on {
+  background: var(--green);
+  border-color: var(--green);
+}
+#pg-guia .chk-box svg { opacity: 0; transition: opacity .15s; }
+#pg-guia .chk-box.on svg { opacity: 1; }
+#pg-guia .chk-text {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+  flex: 1;
+}
+#pg-guia .chk-text.on {
+  text-decoration: line-through;
+  color: var(--text3);
+}
+#pg-guia /* ── zeradores ── */
+.zer-group {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+#pg-guia .zer-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+#pg-guia .zer-item:last-child { border-bottom: none; }
+#pg-guia .zer-item:active { background: var(--red-light); }
+#pg-guia .zer-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid rgba(192,57,43,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all .15s;
+  background: var(--surface);
+}
+#pg-guia .zer-box.on {
+  background: var(--red);
+  border-color: var(--red);
+}
+#pg-guia .zer-box svg { opacity: 0; transition: opacity .15s; }
+#pg-guia .zer-box.on svg { opacity: 1; }
+#pg-guia .zer-text {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+  flex: 1;
+}
+#pg-guia .zer-pill {
+  font-size: 10px;
+  color: var(--red);
+  background: var(--red-light);
+  padding: 2px 7px;
+  border-radius: 100px;
+  flex-shrink: 0;
+  opacity: .8;
+  align-self: center;
+}
+#pg-guia /* ── buttons ── */
+.btn-reset {
+  width: 100%;
+  padding: 13px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border2);
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 13px;
+  font-family: var(--font);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all .15s;
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
+}
+#pg-guia .btn-reset:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+#pg-guia /* ── guia toggle ── */
+.guia-toggle {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-family: var(--font);
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background .15s;
+  letter-spacing: -0.01em;
+}
+#pg-guia .guia-toggle:hover { background: rgba(255,255,255,0.07); }
+#pg-guia .guia-toggle.open { border-radius: var(--radius) var(--radius) 0 0; }
+#pg-guia .guia-chevron {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform .2s, background .15s;
+}
+#pg-guia .guia-chevron svg { width: 12px; height: 12px; transition: transform .2s; }
+#pg-guia .guia-toggle.open .guia-chevron svg { transform: rotate(180deg); }
+#pg-guia .guia-panel {
+  display: none;
+  background: var(--surface);
+  border-radius: 0 0 var(--radius) var(--radius);
+  margin-bottom: 20px;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+}
+#pg-guia .guia-panel.open { display: block; }
+#pg-guia /* ── tabs ── */
+.tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+#pg-guia .tab {
+  padding: 5px 13px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-size: 12px;
+  font-family: var(--font);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .12s;
+}
+#pg-guia .tab:hover { color: var(--text); border-color: var(--border2); }
+#pg-guia .tab.on { background: rgba(255,255,255,0.15); color: var(--text); border-color: rgba(255,255,255,0.3); }
+#pg-guia /* ── search ── */
+.search-wrap { margin-bottom: 14px; position: relative; }
+#pg-guia .search-wrap svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--text3);
+  pointer-events: none;
+}
+#pg-guia .search-input {
+  width: 100%;
+  padding: 9px 12px 9px 34px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border2);
+  font-size: 13px;
+  font-family: var(--font);
+  background: rgba(0,0,0,0.15);
+  color: var(--text);
+  transition: border-color .15s;
+}
+#pg-guia .search-input::placeholder { color: var(--text3); }
+#pg-guia .search-input:focus { outline: none; border-color: var(--green); background: var(--surface); }
+#pg-guia /* ── fav strip ── */
+.fav-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+#pg-guia .fav-strip-label { font-size: 12px; color: var(--text3); }
+#pg-guia .fav-btn-strip {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: var(--font);
+  color: var(--text3);
+  padding: 0;
+  transition: color .12s;
+}
+#pg-guia .fav-btn-strip.on { color: var(--text); font-weight: 500; }
+#pg-guia .fav-btn-strip:hover { color: var(--text2); }
+#pg-guia .fav-sep { color: var(--text3); font-size: 12px; }
+#pg-guia /* ── cards ── */
+.cards-group {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+#pg-guia .obj-card { border-bottom: 1px solid var(--border); }
+#pg-guia .obj-card:last-child { border-bottom: none; }
+#pg-guia .obj-card-h {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  cursor: pointer;
+  transition: background .1s;
+}
+#pg-guia .obj-card-h:active { background: var(--bg); }
+#pg-guia .obj-title {
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+#pg-guia .fav-star {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text3);
+  padding: 0;
+  flex-shrink: 0;
+  line-height: 1;
+  transition: color .15s;
+}
+#pg-guia .fav-star.on { color: #d4a017; }
+#pg-guia .chev-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--text3);
+  flex-shrink: 0;
+  transition: transform .2s;
+}
+#pg-guia .chev-icon.o { transform: rotate(180deg); }
+#pg-guia .obj-card-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+}
+#pg-guia .obj-card-body.o { display: block; }
+#pg-guia .detail-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  color: var(--text3);
+  margin: 14px 0 6px;
+}
+#pg-guia .detail-text {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+#pg-guia .script-block {
+  border-left: 2.5px solid var(--green-mid);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  font-style: italic;
+  background: var(--green-light);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+#pg-guia .warn-block {
+  border-left: 2.5px solid var(--amber);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--amber);
+  line-height: 1.5;
+  margin-top: 10px;
+  background: var(--amber-light);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+#pg-guia .empty-state {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text3);
+  font-size: 13px;
+}
+#pg-guia /* ── states ── */
+.state-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 8px;
+}
+#pg-guia .state-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+  letter-spacing: -0.01em;
+}
+#pg-guia .state-discount {
+  font-size: 12px;
+  color: var(--green);
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+#pg-guia .state-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-bottom: 5px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.4;
+}
+#pg-guia .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+#pg-guia .dot.ok { background: var(--green-mid); }
+#pg-guia .dot.no { background: var(--red); opacity: .5; }
+#pg-guia /* ── monitoria ── */
+.mon-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+#pg-guia .mon-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  cursor: pointer;
+  transition: background .1s;
+}
+#pg-guia .mon-header:active { background: var(--bg); }
+#pg-guia .mon-title {
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+#pg-guia .badge-pill {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+#pg-guia .badge-pill.green { background: var(--green-light); color: var(--green); }
+#pg-guia .badge-pill.amber { background: var(--amber-light); color: var(--amber); }
+#pg-guia .badge-pill.red { background: var(--red-light); color: var(--red); }
+#pg-guia .mon-body { display: none; padding: 0 16px 14px; border-top: 1px solid var(--border); }
+#pg-guia .mon-body.o { display: block; }
+#pg-guia .mon-pbar { height: 2px; background: var(--bg); border-radius: 2px; margin: 12px 0 10px; }
+#pg-guia .mon-pbar-fill { height: 2px; background: var(--green-mid); border-radius: 2px; }
+#pg-guia .mon-items { list-style: none; }
+#pg-guia .mon-items li {
+  font-size: 13px;
+  color: var(--text2);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  line-height: 1.5;
+}
+#pg-guia .mon-items li:last-child { border-bottom: none; }
+#pg-guia .ch-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+#pg-guia .cht {
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-size: 12px;
+  font-family: var(--font);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .12s;
+}
+#pg-guia .cht.on { background: rgba(255,255,255,0.15); color: var(--text); border-color: rgba(255,255,255,0.3); }
+#pg-guia .mon-sec-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text3);
+  margin: 14px 0 8px;
+}
+#pg-guia .crit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+#pg-guia .crit-row:last-child { border-bottom: none; }
+#pg-guia .pts-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+#pg-guia .pts-row:last-child { border-bottom: none; }
+#pg-guia .total-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--border2);
+  margin-top: 4px;
+}
+#pg-guia .pts-table {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 8px 0;
+  border: 1px solid var(--border);
+}
+#pg-guia .zer-table {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+#pg-guia .mon-msec { margin-bottom: 16px; }
+#pg-guia /* ── footer ── */
+.footer {
+  text-align: center;
+  padding: 20px 0 0;
+  font-size: 11px;
+  color: var(--text3);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+@keyframes flashRed {
+  0% { box-shadow: none; }
+  20% { box-shadow: 0 0 0 2px rgba(192,57,43,.3); }
+  100% { box-shadow: none; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 </style>
 </head>
 <body>
@@ -250,12 +946,15 @@ td.num{text-align:right;font-variant-numeric:tabular-nums}
     <button class="nav-btn" data-pg="analise">📊 Análise de Times</button>
     <button class="nav-btn" data-pg="desempenho">📈 Desempenho por Agente</button>
     <button class="nav-btn" data-pg="medias">📆 Médias do Mês</button>
+    <button class="nav-btn" data-pg="separar">👤 Separar por Agente</button>
     <div class="nav-sec">Resultados</div>
     <button class="nav-btn" data-pg="conversao">🎯 Conversão Pós-Contato</button>
     <button class="nav-btn" data-pg="demandas">📝 Demandas</button>
     <div class="nav-sec">Disparos</div>
     <button class="nav-btn" data-pg="d3c">📤 Disparo 3C+</button>
     <button class="nav-btn" data-pg="gerador">📞 Ligação Energizados</button>
+    <div class="nav-sec">Apoio</div>
+    <button class="nav-btn" data-pg="guia">📚 Guia de Atendimento</button>
     <div class="credito">Desenvolvido por<br>jennifer.silveira@igreenenergy.com.br<br>iGreen Energy · 2026</div>
   </aside>
 
@@ -271,8 +970,10 @@ td.num{text-align:right;font-variant-numeric:tabular-nums}
       <div class="home-card" data-pg="analise"><div class="ico">📊</div><b>Análise de Times</b><p>Envie os CSVs do dia (ligações, produtividade e pausas) e gere os 2 Excel: Analise_Times e Analise_MeetCall, com abas por time, análise manual e status 🟢🟡🔴.</p></div>
       <div class="home-card" data-pg="desempenho"><div class="ico">📈</div><b>Desempenho por Agente</b><p>Ligações ≥15s, tempo manual vs. ligações manuais e coluna Diferença, direto na tela e exportável.</p></div>
       <div class="home-card" data-pg="medias"><div class="ico">📆</div><b>Médias do Mês</b><p>Suba o CSV do mês de chat e/ou ligações, informe os dias trabalhados e veja a média diária de cada pessoa — e quanto precisa entregar por dia pra bater a meta.</p></div>
+      <div class="home-card" data-pg="separar"><div class="ico">👤</div><b>Separar por Agente</b><p>Suba o CSV geral de ligações e receba um ZIP com uma planilha por agente, pronta pra enviar todo dia.</p></div>
       <div class="home-card" data-pg="conversao"><div class="ico">🎯</div><b>Conversão Pós-Contato</b><p>Cruza o CSV das ligações do dia com o CSV de pagos: mostra quem pagou no dia do contato ou depois, taxa de conversão, valor recuperado e resultado por qualificação.</p></div>
       <div class="home-card" data-pg="demandas"><div class="ico">📝</div><b>Demandas</b><p>Anote as demandas do dia com observações, acompanhe o status e exporte tudo em Excel formatado.</p></div>
+      <div class="home-card" data-pg="guia"><div class="ico">📚</div><b>Guia de Atendimento</b><p>O guia completo da equipe: processos, checklists, times e favoritos — agora dentro da Central.</p></div>
       <div class="home-card" data-pg="d3c"><div class="ico">📤</div><b>Disparo 3C+</b><p>Filtra "Promessa de Pagamento" e "Solicitou 2ª via" do CSV de ligações e gera Excel com Celular | CPF.</p></div>
       <div class="home-card" data-pg="gerador"><div class="ico">📞</div><b>Ligação Energizados</b><p>Base iVolt → listas de ligação (Base Total, 1 Boleto, Base Menor, BA/PE), remoção de tabulações via 3C+ e exportação no padrão POP.</p></div>
     </div>
@@ -350,6 +1051,24 @@ td.num{text-align:right;font-variant-numeric:tabular-nums}
     <div id="md-kpis"></div>
     <div id="md-chat-tab"></div>
     <div id="md-lig-tab"></div>
+  </section>
+
+  <!-- ============ SEPARAR POR AGENTE ============ -->
+  <section class="pagina" id="pg-separar">
+    <h1>👤 Separar por Agente</h1>
+    <p class="sub">Suba o CSV geral de ligações do 3C+ e receba uma <b>pasta compactada (ZIP)</b> com uma planilha Excel formatada por agente — as ligações e/ou as conversas de chat daquela pessoa, com resumo no topo. Pronto pra mandar no privado de cada um todo dia!</p>
+    <div class="grid2">
+      <div class="card"><h3>📞 CSV Geral de Ligações (3C+)</h3><div class="dica">O relatório completo do dia — o sistema separa por agent_name e gera uma planilha para cada agente.</div>
+        <label class="drop" id="drop-sp-lig">Clique ou arraste o CSV aqui<input type="file" accept=".csv" id="file-sp-lig"></label></div>
+      <div class="card"><h3>💬 Relatório de Chat <span class="opcional">opcional</span></h3><div class="dica">CSV de resoluções por colaborador. Chat não tem ≥15s nem qualificação — cada agente recebe a aba com as conversas dele e o total.</div>
+        <label class="drop" id="drop-sp-chat">Clique ou arraste o CSV aqui<input type="file" accept=".csv" id="file-sp-chat"></label></div>
+    </div>
+    <div class="linha-config">
+      <div class="campo"><label>Dia</label><select id="sp-dia"><option value="todos">Todos os dias</option></select></div>
+      <button class="btn" id="btn-sp-gerar" disabled>📦 Gerar ZIP por agente</button>
+    </div>
+    <div class="status-msg" id="sp-msg"></div>
+    <div id="sp-lista"></div>
   </section>
 
   <!-- ============ CONVERSÃO PÓS-CONTATO ============ -->
@@ -582,6 +1301,157 @@ td.num{text-align:right;font-variant-numeric:tabular-nums}
     </div>
   </div>
 
+</div>
+  </section>
+
+  <!-- ============ GUIA DE ATENDIMENTO ============ -->
+  <section class="pagina" id="pg-guia">
+<div class="page">
+
+  <!-- user info top -->
+  <div style="text-align:center;padding:10px 0 4px;font-size:11px;color:var(--text3);display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;">
+    <span>Jennifer Silveira</span>
+    <span style="color:var(--border2);">·</span>
+    <span>jennifer.silveira@igreenenergy.com.br</span>
+    <span style="color:var(--border2);">·</span>
+    <span>© 2026 iGreen Energy</span>
+  </div>
+
+  <!-- header -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 2L10.5 6.5H13L9.5 9.5L10.5 14L8 11.5L5.5 14L6.5 9.5L3 6.5H5.5L8 2Z" fill="white" opacity=".9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">iGreen Energy</div>
+        <div class="brand-sub">Checklist de ligação · <span style="color:var(--amber)">atualizado 16/04/26</span></div>
+      </div>
+    </div>
+    <div class="header-score">
+      <div class="header-score-num" id="hdr-score">0%</div>
+      <div class="header-score-label" style="font-size:10px;color:var(--text3);margin-top:2px;">ligação atual</div>
+    </div>
+  </header>
+
+  <!-- score card -->
+  <div class="score-card" id="score-panel">
+    <div class="score-row">
+      <span class="score-num" id="chk-score">0</span>
+      <span class="score-unit" id="chk-pct">pts</span>
+    </div>
+    <p class="score-status" id="chk-status">Marque os critérios cumpridos durante a ligação</p>
+    <div class="progress-track"><div class="progress-fill" id="chk-fill" style="width:0%"></div></div>
+    <div class="score-ticks"><span>0</span><span>61%</span><span>81%</span><span>91%</span><span>100</span></div>
+    <p class="next-hint" id="next-hint"></p>
+  </div>
+
+  <!-- critérios -->
+  <p class="sec-label">Critérios da ligação</p>
+  <div class="chk-group" id="chk-criterios"></div>
+
+  <!-- zeradores -->
+  <p class="sec-label danger" style="margin-top:20px;">Erros críticos — marque se ocorreu</p>
+  <div class="zer-group" id="chk-zeradores"></div>
+
+  <!-- reset -->
+  <button class="btn-reset" onclick="resetChecklist()" style="margin-top:12px;">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1.5 7A5.5 5.5 0 0 1 12.5 4.5M12.5 7A5.5 5.5 0 0 1 1.5 9.5M1.5 4.5V1.5M1.5 4.5H4.5M12.5 9.5V12.5M12.5 9.5H9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Resetar — próxima ligação
+  </button>
+
+  <!-- guia -->
+  <p class="sec-label" style="margin-top:20px;">Guia de atendimento</p>
+
+  <!-- Energizados -->
+  <button class="guia-toggle" id="guia-btn-en" onclick="toggleTeam('en')">
+    <span>⚡ Energizados</span>
+    <div class="guia-chevron">
+      <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </button>
+  <div class="guia-panel" id="guia-panel-en" style="margin-bottom:8px;">
+    <div class="fav-strip">
+      <span class="fav-strip-label">Ver:</span>
+      <button class="fav-btn-strip on" id="fav-all-btn" onclick="setFavFilter(false,this)">Todas</button>
+      <span class="fav-sep">·</span>
+      <button class="fav-btn-strip" id="fav-only-btn" onclick="setFavFilter(true,this)">⭐ Favoritas</button>
+    </div>
+    <div class="tabs">
+      <button class="tab on" onclick="setTab('todas',this)">Todas</button>
+      <button class="tab" onclick="setTab('cobranca',this)">Cobrança</button>
+      <button class="tab" onclick="setTab('desconto',this)">Desconto</button>
+      <button class="tab" onclick="setTab('cancelamento',this)">Cancelamento</button>
+      <button class="tab" onclick="setTab('confian',this)">Confiança</button>
+      <button class="tab" onclick="setTab('estados',this)">Por estado</button>
+      <button class="tab" onclick="setTab('monitoria',this)">Monitoria</button>
+    </div>
+    <div id="sb" class="search-wrap">
+      <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M9.5 9.5L12.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input class="search-input" type="text" id="si" placeholder="Buscar objeção, argumento ou script…" oninput="filterCards()"/>
+    </div>
+    <div id="ca"></div>
+    <div id="sa" style="display:none;"></div>
+    <div id="ma" style="display:none;"></div>
+  </div>
+
+  <!-- iVolt -->
+  <button class="guia-toggle" id="guia-btn-iv" onclick="toggleTeam('iv')" style="margin-bottom:0;">
+    <span>🔋 iVolt</span>
+    <div class="guia-chevron">
+      <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </button>
+  <div class="guia-panel" id="guia-panel-iv" style="margin-bottom:8px;">
+    <div id="sb-iv" class="search-wrap">
+      <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M9.5 9.5L12.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input class="search-input" type="text" id="si-iv" placeholder="Buscar objeção…" oninput="renderTeamCards('iv')"/>
+    </div>
+    <div id="ca-iv"></div>
+  </div>
+
+  <!-- AZA -->
+  <button class="guia-toggle" id="guia-btn-az" onclick="toggleTeam('az')" style="margin-bottom:0;">
+    <span>🌿 AZA</span>
+    <div class="guia-chevron">
+      <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </button>
+  <div class="guia-panel" id="guia-panel-az">
+    <div id="sb-az" class="search-wrap">
+      <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M9.5 9.5L12.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input class="search-input" type="text" id="si-az" placeholder="Buscar objeção…" oninput="renderTeamCards('az')"/>
+    </div>
+    <div id="ca-az"></div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span>Jennifer Silveira</span>
+  <span>·</span>
+  <span>jennifer.silveira@igreenenergy.com.br</span>
+  <span>·</span>
+  <span>© 2026 iGreen Energy</span>
 </div>
   </section>
 
@@ -1360,6 +2230,127 @@ document.getElementById('btn-md-excel').addEventListener('click',()=>{
   }
   const hoje=new Date();
   baixaXLSX(wb,'Medias_Mes_'+String(hoje.getDate()).padStart(2,'0')+'-'+String(hoje.getMonth()+1).padStart(2,'0')+'.xlsx');
+});
+
+/* ================================================================
+   9) SEPARAR POR AGENTE (ZIP com uma planilha por agente + pagos)
+   ================================================================ */
+let spLig=null, spChat=null, spDataCol=null;
+function spAtualizaBotao(){ document.getElementById('btn-sp-gerar').disabled = !(spLig || spChat); }
+setupDrop('drop-sp-lig','file-sp-lig', async files=>{
+  spLig = await lerCSV(files[0]);
+  const d=document.getElementById('drop-sp-lig'); d.classList.add('ok');
+  const hh=Object.keys(spLig[0]||{});
+  spDataCol = achaCol(hh,['call_date','data','date']);
+  const dias={};
+  if(spDataCol) for(const r of spLig){ const k=deDiaKey(r[spDataCol]); if(k) dias[k]=(dias[k]||0)+1; }
+  const lista=Object.keys(dias).sort((a,b)=>a.split('/').reverse().join('')<b.split('/').reverse().join('')?-1:1);
+  const sel=document.getElementById('sp-dia');
+  sel.innerHTML='<option value="todos">Todos os dias</option>'+lista.map(k=>`<option value="${k}">${k} (${dias[k]} lig.)</option>`).join('');
+  if(lista.length===1) sel.value=lista[0];
+  d.firstChild.textContent='✅ '+files[0].name+' ('+spLig.length+' ligações · '+(lista.length||1)+' dia'+(lista.length>1?'s':'')+')';
+  spAtualizaBotao();
+});
+setupDrop('drop-sp-chat','file-sp-chat', async files=>{
+  spChat = await lerCSV(files[0]);
+  const d=document.getElementById('drop-sp-chat'); d.classList.add('ok'); d.firstChild.textContent='✅ '+files[0].name+' ('+spChat.length+' conversas)';
+  spAtualizaBotao();
+});
+function spNomeArquivo(nome){
+  return nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'_');
+}
+document.getElementById('btn-sp-gerar').addEventListener('click', async ()=>{
+  try{
+    limpaMsg('sp-msg');
+    if(!xlsxPronto()) return;
+    if(typeof JSZip==='undefined'){ msg('sp-msg','erro','❌ O compactador (ZIP) ainda está carregando — verifique a internet e tente de novo em alguns segundos.'); return; }
+    const diaSel = document.getElementById('sp-dia').value;
+    let base = [], cAg,cData,cNum,cIdent,cCamp,cQual,cModo,cFala;
+    const porAgente={};
+    if(spLig){
+      base = spLig;
+      if(diaSel!=='todos' && spDataCol) base = spLig.filter(r=>deDiaKey(r[spDataCol])===diaSel);
+      const hL=Object.keys((base[0]||spLig[0])||{});
+      cAg=achaCol(hL,['agent_name','agente']); cData=achaCol(hL,['call_date','data']);
+      cNum=achaCol(hL,['number','record_name','telefone']); cIdent=achaCol(hL,['identifier','identificador']);
+      cCamp=achaCol(hL,['campaign_name','campanha']); cQual=achaCol(hL,['qualification_name','qualificacao']);
+      cModo=achaCol(hL,['call_mode','modo']); cFala=achaCol(hL,['speaking_with_agent_time','speaking']);
+      if(!cAg) throw new Error('CSV de ligações sem coluna agent_name.');
+      for(const r of base){
+        const n=String(r[cAg]||'').trim(); if(!n) continue;
+        (porAgente[n]=porAgente[n]||[]).push(r);
+      }
+    }
+    // chat por colaborador (opcional)
+    const chatPorAgente={};
+    let chCols=null, chHead=null;
+    if(spChat && spChat.length){
+      const hC=Object.keys(spChat[0]||{});
+      const cCol=achaCol(hC,['colaborador','agent_name','agente','atendente']);
+      if(!cCol) throw new Error('Relatório de chat sem coluna Colaborador.');
+      const cRes=achaCol(hC,['data resolucao','data resolução','data_resolucao']);
+      // colunas mais úteis presentes no arquivo (sem lance de ≥15s)
+      const desejadas=[['Data Início','data inicio conversa'],['Data Resolução','data resolucao'],['CPF/CNPJ','cpf'],['Telefone','telefone'],['Fornecedora','fornecedora'],['Time','time'],['Tabulação','tabulacao']];
+      chCols=[]; chHead=[];
+      for(const [rot,cand] of desejadas){ const c=achaCol(hC,[cand]); if(c){ chCols.push(c); chHead.push(rot); } }
+      if(!chCols.length){ chCols=hC.slice(0,7).filter(c=>c!==cCol); chHead=chCols.slice(); }
+      for(const r of spChat){
+        if(diaSel!=='todos' && cRes && r[cRes]){
+          const k=deDiaKey(String(r[cRes]).split(',')[0]);
+          if(k && k!==diaSel) continue;
+        }
+        const n=String(r[cCol]||'').trim(); if(!n) continue;
+        (chatPorAgente[n]=chatPorAgente[n]||[]).push(r);
+      }
+    }
+    const agentes=[...new Set([...Object.keys(porAgente),...Object.keys(chatPorAgente)])].sort();
+    if(!agentes.length) throw new Error('Nenhum agente encontrado nos arquivos.');
+
+    const rotDia = diaSel==='todos' ? 'todos os dias do arquivo' : diaSel;
+    const zip = new JSZip();
+    for(const nome of agentes){
+      const wb=XLSX.utils.book_new();
+      const rows = porAgente[nome]||[];
+      if(rows.length){
+        const m15 = rows.filter(r=>parseDur(cFala?r[cFala]:0)>=15).length;
+        const nq  = rows.filter(r=>ehNQ(cQual?r[cQual]:'')).length;
+        const dados=[[CREDITO],['📞 Ligações — '+nome+' — '+rotDia],
+          ['ℹ️ Resumo: '+rows.length+' ligações · '+m15+' com fala ≥15s ('+(rows.length?(m15/rows.length*100).toFixed(1).replace('.',','):'0')+'%) · '+nq+' não qualificadas. Use este arquivo para a sua análise diária.'],
+          [],['Data','Número','CPF','Campanha','Modo','Qualificação','Tempo Falado','≥15s']];
+        rows.forEach(r=>{
+          const fala=parseDur(cFala?r[cFala]:0);
+          dados.push([cData?String(r[cData]||''):'', cNum?soDigitos(r[cNum]):'', fmtCPF(cIdent?r[cIdent]:''),
+            cCamp?String(r[cCamp]||''):'', cModo?String(r[cModo]||''):'', cQual?String(r[cQual]||''):'',
+            fmtDur(fala), fala>=15?'✅':'']);
+        });
+        XLSX.utils.book_append_sheet(wb, abaBonita(dados,[16,14,17,18,10,24,12,7],{titleRow:1,explicRows:[2],headerRows:[4],dataStart:5}),'Ligações');
+      }
+      const chats = chatPorAgente[nome]||[];
+      if(chats.length){
+        const dc=[[CREDITO],['💬 Chat — '+nome+' — '+rotDia],
+          ['ℹ️ Resumo: '+chats.length+' conversas resolvidas no período. Chat não tem tempo de fala — cada linha é uma conversa sua.'],
+          [],chHead];
+        chats.forEach(r=>dc.push(chCols.map(c=>String(r[c]==null?'':r[c]))));
+        XLSX.utils.book_append_sheet(wb, abaBonita(dc, chHead.map(()=>18), {titleRow:1,explicRows:[2],headerRows:[4],dataStart:5}),'Chat');
+      }
+      const buf=XLSX.write(wb,{type:'array',bookType:'xlsx'});
+      zip.file(spNomeArquivo(nome)+'.xlsx', buf);
+    }
+    const blob=await zip.generateAsync({type:'blob'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='Ligacoes_por_Agente_'+(diaSel==='todos'?'Periodo':diaSel.slice(0,5).replace('/','-'))+'.zip';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+
+    document.getElementById('sp-lista').innerHTML = '<div class="tabela-wrap"><table><tr><th>Agente</th><th>📞 Ligações</th><th>≥15s</th><th>💬 Chats</th><th>Arquivo</th></tr>'+
+      agentes.map(n=>{
+        const rows=porAgente[n]||[]; const m15=rows.filter(r=>parseDur(cFala?r[cFala]:0)>=15).length;
+        const ch=(chatPorAgente[n]||[]).length;
+        return `<tr><td>${n}</td><td class="num">${rows.length||'—'}</td><td class="num">${rows.length?m15:'—'}</td><td class="num">${ch||'—'}</td><td>📄 ${spNomeArquivo(n)}.xlsx</td></tr>`;
+      }).join('')+'</table></div>';
+    msg('sp-msg','ok','✅ ZIP gerado com <b>'+agentes.length+' planilhas</b> ('+rotDia+')'+(spChat?' · ligações e chat juntos por pessoa':'')+'. É só extrair e mandar pra cada um! 📦');
+  }catch(e){ msg('sp-msg','erro','❌ '+e.message); console.error(e); }
 });
 
 /* ================================================================
@@ -2211,8 +3202,8 @@ function renderPag(tab, total) {
 function irPag(tab, p) { state.paginas[tab] = p; renderTabela(tab); }
 
 function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${tab}`));
+  document.querySelectorAll('#pg-gerador .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('#pg-gerador .tab-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${tab}`));
 }
 
 /* ══════════════════════════════════════════════
@@ -2475,6 +3466,408 @@ window.processarTudo = processarTudo;
 window.renderTabela = renderTabela;
 window.resetarFiltroCustom = resetarFiltroCustom;
 window.switchTab = switchTab;
+})();
+</script>
+<script>
+(function(){
+
+const OBJ=[
+  {id:1,tag:"cobranca",title:'"O desconto não está batendo na conta."',arg:"O desconto é aplicado sobre o consumo de energia (kWh), não sobre toda a fatura. Taxas fixas, iluminação pública e impostos da distribuidora não recebem desconto.",sc:"Seu desconto está garantido sobre o consumo de energia, mas existem tarifas e impostos da distribuidora que não recebem desconto. É por isso que o valor total não cai proporcionalmente."},
+  {id:2,tag:"cobranca",title:'"Recebi duas contas, por que tenho que pagar as duas?"',arg:"A fornecedora injeta energia na rede da distribuidora. O cliente continua com duas cobranças: a mínima da distribuidora e a da energia com desconto. A soma das duas ainda é menor do que pagar somente à distribuidora.",sc:"A distribuidora cobra apenas taxas mínimas e impostos obrigatórios, já o nosso boleto é referente à energia que você realmente consome, com desconto. A soma das duas ainda é menor do que se você pagasse somente à distribuidora."},
+  {id:3,tag:"cobranca",title:'"Meu boleto venceu e não consegui atualizar."',arg:"Mostrar os canais disponíveis e reforçar que sempre há possibilidade de envio rápido do boleto atualizado.",sc:"Você pode solicitar a atualização do boleto direto pelo nosso portal ou WhatsApp. Caso prefira, enviamos por e-mail na hora. Assim, você não perde os benefícios do contrato."},
+  {id:4,tag:"cobranca",title:'"Não recebi meu boleto."',arg:"Garantir o envio por múltiplos canais e orientar o cliente a verificar caixa de spam ou lixeira.",sc:"Sempre enviamos por e-mail e WhatsApp, mas caso não tenha recebido, podemos reencaminhar agora mesmo. Se preferir, também pode acessar o boleto direto pelo nosso portal."},
+  {id:5,tag:"cobranca",title:'"Atendimento demora muito / não recebi retorno."',arg:"Reforçar que o atendimento é multicanal (chat, 0800, WhatsApp) e que todos os atendimentos ficam registrados.",sc:"Temos diferentes canais de suporte e todos os atendimentos ficam registrados para acompanhamento. Se não conseguiu resposta em um canal, pode acionar outro imediatamente."},
+  {id:6,tag:"cobranca",title:'"Não entendi a cobrança da energia mínima."',arg:"A taxa mínima é obrigatória por lei para todos os consumidores, cobrada diretamente pela distribuidora, não pela fornecedora.",sc:"A taxa mínima é obrigatória para todos os consumidores, mesmo quem tem placas solares próprias. O desconto que oferecemos é sobre a energia consumida acima desse valor mínimo."},
+  {id:7,tag:"desconto",title:'"Meu desconto está menor do que o prometido."',arg:"O desconto depende do consumo mensal. Se o cliente gastar menos energia, o valor de economia em reais diminui — mas o percentual continua correto.",sc:"O percentual de desconto está aplicado corretamente, mas como seu consumo este mês foi menor, o valor de economia também foi reduzido. Na próxima fatura, se o consumo aumentar, o desconto volta a ser maior em reais."},
+  {id:8,tag:"desconto",title:'"Se eu não pagar, vão cortar minha energia?"',arg:"O fornecimento da distribuidora não é interrompido, mas o cliente pode perder o contrato de desconto e ser negativado.",sc:"A distribuidora não corta a luz por atraso na fatura da fornecedora, mas você pode perder o desconto, acumular dívidas e ter o CPF negativado. Por isso é melhor regularizar antes que isso aconteça."},
+  {id:9,tag:"desconto",title:'"Não vejo vantagem, a economia é pouca."',arg:"Economia garantida sem investimento em placas, manutenção ou riscos climáticos.",sc:"A economia pode parecer pequena em alguns meses, mas é um valor garantido sem que você precise investir em placas solares, manutenção ou se preocupar com queda de produção."},
+  {id:10,tag:"cancelamento",title:"Cliente quer cancelar (abordagem geral)",arg:"Questionar o motivo e contra-argumentar. Explicar desconto atual e benefícios do iGreen Club. Se não resolver, oferecer 16%. Em último caso, 20% com fidelidade de 12 meses.",sc:"Identifiquei que o seu contrato é de X% de desconto — ou seja, você tem uma média de R$ X de economia por mês. Além do desconto, você faz parte do clube de benefícios, com descontos em farmácias, cinemas e muito mais. Você realmente quer desativar conosco e perder tudo isso?"},
+  {id:11,tag:"cancelamento",title:'"Não quero pagar taxa de adesão/cancelamento."',arg:"Explicar que a taxa cobre custos operacionais e está prevista em contrato.",sc:"A taxa existe apenas para cobrir custos administrativos e está prevista em contrato. Mas nosso objetivo é que você continue usufruindo da economia."},
+  {id:12,tag:"cancelamento",title:'"Vou instalar placas solares, não quero mais pagar."',arg:"Fornecedora GV: a fornecedora pode complementar o consumo caso as placas não sejam suficientes, ainda com desconto — use esse argumento para reter o cliente. // Outras fornecedoras: não há solução disponível para esse caso, não force a retenção.",sc:"Que ótimo você investir em energia solar! Mas caso sua produção não cubra 100% do consumo, você pode continuar conosco para complementar a diferença com desconto, em vez de pagar tarifa cheia da distribuidora.",al:"Argumento de complementação válido apenas para clientes da fornecedora GV. Para demais fornecedoras, não há solução disponível — não ofereça alternativa."},
+  {id:13,tag:"cancelamento",title:'"Não quero duas contas separadas."',arg:"Oferecer conta única como retenção. Verificar débito em conta e boletos em atraso. Vencimento antecipado em 5 dias.",sc:"Temos a opção de conta única, onde as faturas são unificadas para facilitar seu controle. Posso verificar se você se enquadra nessa modalidade?",al:"Não disponível para clientes da Bahia (Coelba). Também não disponível para quem tem 16% ou 20% de desconto."},
+  {id:14,tag:"confian",title:'"Tenho medo de golpe, não confio em pagar outra empresa."',arg:"Explicar a regulação da ANEEL e o modelo de mercado livre. O cliente continua ligado à distribuidora.",sc:"Nosso serviço é regulado pela ANEEL. Você continua ligado à distribuidora, mas passa a receber créditos de energia gerada por nós, de forma segura e regulamentada."},
+  {id:15,tag:"confian",title:'"Meu nome foi negativado sem aviso."',arg:"Mostrar os avisos enviados previamente e oferecer negociação para limpar o nome após pagamento.",sc:"Antes da negativação, enviamos comunicações por e-mail, WhatsApp e SMS. Mas podemos negociar a regularização e retirar a restrição assim que o pagamento for feito."},
+  {id:16,tag:"confian",title:'"Não entendi como funcionam os créditos de energia."',arg:"A energia é gerada, injetada na rede e revertida em créditos automáticos na conta da distribuidora.",sc:"Nós geramos energia solar e injetamos na rede da distribuidora. Essa energia volta como créditos na sua fatura, reduzindo o valor final que você paga."},
+  {id:18,tag:"cobranca",title:'"A distribuidora não liga para cobrar, por que vocês ligam?"',arg:"A distribuidora não liga, mas corta a energia — que é muito mais impactante. A iGreen prefere entrar em contato antes de tomar qualquer decisão, para buscar uma negociação junto ao cliente.",sc:"Entendo que a CEMIG não cobra por ligação, mas infelizmente ela corta a luz, que é algo muito mais essencial. Já nós, evitamos tomar esse tipo de decisão sem antes conversar com o cliente e encontrar o melhor caminho para a quitação do boleto."},
+  {id:17,tag:"confian",title:"Cliente se recusa a pagar",arg:"Se o cliente der abertura, oferecer o aplicativo e os benefícios do iGreen Club — pode ser o que falta para engajá-lo. Os valores são devidos independentemente. Negativação pode ocorrer a qualquer momento. Solicitar previsão de pagamento para cessar cobranças.",sc:"Os valores cobrados são devidos, pois se trata do seu consumo de energia. As cobranças continuam. Com a falta de pagamento, seu nome pode ser negativado e protestado a qualquer momento. Precisamos de uma previsão de pagamento para que as cobranças cessem até a data."},
+  {id:19,tag:"confian",title:"Pessoa que atendeu não é o titular",arg:"Primeiro questionar se ela é responsável pelos pagamentos.\n\nNão é responsável pelos pagamentos: não precisa falar sobre aplicativo e benefícios, nem solicitar promessa de pagamento. Encerrar o atendimento cordialmente e orientar a repassar ao titular.\n\nÉ responsável pelos pagamentos: tratar como titular — questionar promessa de pagamento, apresentar aplicativo e benefícios normalmente.",sc:"Tudo bem, posso falar com o(a) sr(a) para entender melhor a situação. Só preciso confirmar: o(a) sr(a) é responsável pelos pagamentos dessa conta?"}
+];
+
+const OBJ_IV=[
+  {id:1,tag:"confian",title:"Pessoa que atendeu não é o titular",arg:"Primeiro questionar se ela é responsável pelos pagamentos.\n\nNão é responsável pelos pagamentos: não precisa falar sobre aplicativo e benefícios, nem solicitar promessa de pagamento. Encerrar o atendimento cordialmente e orientar a repassar ao titular.\n\nÉ responsável pelos pagamentos: tratar como titular — questionar promessa de pagamento, apresentar aplicativo e benefícios normalmente.",sc:"Tudo bem, posso falar com o(a) sr(a) para entender melhor a situação. Só preciso confirmar: o(a) sr(a) é responsável pelos pagamentos dessa conta?"}
+];
+
+const OBJ_AZ=[
+  {id:1,tag:"confian",title:"Pessoa que atendeu não é o titular",arg:"Primeiro questionar se ela é responsável pelos pagamentos.\n\nNão é responsável pelos pagamentos: não precisa falar sobre aplicativo e benefícios, nem solicitar promessa de pagamento. Encerrar o atendimento cordialmente e orientar a repassar ao titular.\n\nÉ responsável pelos pagamentos: tratar como titular — questionar promessa de pagamento, apresentar aplicativo e benefícios normalmente.",sc:"Tudo bem, posso falar com o(a) sr(a) para entender melhor a situação. Só preciso confirmar: o(a) sr(a) é responsável pelos pagamentos dessa conta?"}
+];
+
+const STATES=[
+  {s:"Bahia (Coelba BA)",d:"8%",r:[{ok:false,t:"Conta única não disponível"},{ok:false,t:"Débito automático não disponível"},{ok:false,t:"Aumento de desconto (16% ou 20%) não disponível"},{ok:true,t:"Script padrão de cobrança se aplica normalmente"}]},
+  {s:"Minas Gerais (Cemig MG)",d:"10% | 16% B · 20% ac.1k · 24% ac.5k · 28% D ac.10k kWh",r:[{ok:true,t:"Conta única disponível"},{ok:true,t:"Débito automático: Itaú, Bradesco ou Sicoob — dias 05, 15 ou 25"},{ok:false,t:"Débito automático não permitido para 16% ou 20%"},{ok:true,t:"Aumento para 16% disponível"},{ok:true,t:"Aumento para 20% em último caso (fidelidade 12 meses)"}]},
+  {s:"Mato Grosso do Sul (Energisa MS)",d:"10% | 16% · 20% ac.1k · 24% ac.5k · 28% ac.10k kWh",r:[{ok:true,t:"Conta única disponível"},{ok:true,t:"Débito automático: Itaú, Bradesco ou Sicoob"},{ok:false,t:"Débito automático não permitido para 16% ou 20%"},{ok:true,t:"Aumento para 16% e 20% disponível"}]},
+  {s:"Pernambuco (Neoenergia PE)",d:"5% | 10% B · 12% C ac.1k · 15% D ac.5k kWh",r:[{ok:true,t:"Conta única disponível"},{ok:true,t:"Débito automático disponível"},{ok:true,t:"Promoções 10%, 12%, 15% conforme consumo"}]},
+  {s:"São Paulo (CPFL Paulista)",d:"5% padrão",r:[{ok:true,t:"Conta única disponível"},{ok:true,t:"Débito automático disponível"},{ok:false,t:"Sem promoção de aumento de desconto"}]},
+  {s:"Goiás (Equatorial GO)",d:"10% padrão",r:[{ok:true,t:"Conta única disponível"},{ok:true,t:"Débito automático disponível"},{ok:false,t:"Sem promoção de aumento de desconto"}]},
+  {s:"Rio Grande do Norte (Cosern RN)",d:"5% padrão",r:[{ok:true,t:"Conta única disponível"},{ok:true,t:"Débito automático disponível"},{ok:false,t:"Sem promoção de aumento de desconto"}]},
+  {s:"Ceará (Enel CE)",d:"5% | 10% B · 12% C ac.1k · 15% D ac.5k kWh",r:[{ok:true,t:"Conta única disponível"},{ok:true,t:"Débito automático disponível"},{ok:true,t:"Promoções 10%, 12%, 15% disponíveis"}]}
+];
+
+const CRIT_LIG=[
+  {title:"Abertura e identificação",peso:5,bc:"green",desc:"Se identificar com nome e empresa",items:["Se identificou corretamente com nome e empresa","Saudação adequada ao cliente"]},
+  {title:"Comunicação e postura",peso:5,bc:"green",desc:"Clareza na fala e respeito com o cliente",items:["Clareza e objetividade na fala","Tom respeitoso durante toda a ligação"]},
+  {title:"Diagnóstico da dívida",peso:10,bc:"amber",desc:"Questionar o motivo da dívida",items:["Questionou o motivo da inadimplência","Identificou a situação do cliente corretamente"]},
+  {title:"Negociação",peso:40,bc:"red",desc:"App, benefícios (mín. 2) e proposta clara",items:["Questionou se o cliente tem dúvidas sobre os boletos","Questionou se o cliente tem acesso ao aplicativo","Citou ao menos 2 benefícios do iGreen Club","Apresentou proposta de negociação com clareza"]},
+  {title:"Conformidade",peso:20,bc:"red",desc:"Questionar o motivo do cancelamento",items:["Questionou o motivo do cancelamento","Não expôs o cliente","Não ameaçou ou constrangeu"]},
+  {title:"Registros e procedimentos",peso:10,bc:"amber",desc:"Classificar corretamente a ligação",items:["Registrou corretamente no sistema","Classificou a ligação de forma adequada"]},
+  {title:"Encerramento",peso:10,bc:"amber",desc:"Agradecimento e cordialidade",items:["Agradeceu ao cliente","Encerrou com cordialidade"]}
+];
+
+const CRIT_CHAT=[
+  {title:"Abertura e identificação",peso:10,bc:"amber",items:["Saudação adequada","Identificação correta do operador e da empresa"]},
+  {title:"Comunicação e postura",peso:15,bc:"amber",items:["Clareza na comunicação","Tom respeitoso (sem pressão ou ironia)","Ausência de gírias ou informalidade excessiva","Não ameaçar ou constranger"]},
+  {title:"Negociação / Conformidade",peso:40,bc:"red",items:["Apresentação clara de propostas","Seguir script de retenção (benefícios + app)","Escrita correta (ortografia e gramática)"]},
+  {title:"Registro e procedimentos",peso:20,bc:"red",items:["Registro correto no sistema","Classificação adequada do atendimento (tabulação)"]},
+  {title:"Encerramento",peso:15,bc:"amber",items:["Esclarecimento do acordo fechado","Agradecimento e cordialidade","Encerramento de atendimento"]}
+];
+
+const ZERADORES={
+  ligacao:["Passou informação incorreta ao cliente — qualquer informação incompleta ou errada","Agiu de forma ríspida ou ameaçadora — ser agressivo","Linguagem agressiva — usar linguagem agressiva","Retenção de ligação — mesmo que o cliente não responda, segurar a ligação até dar o tempo legível para cota","Contra-argumentação de cancelamento fora da regra — o cliente reclama sobre o desconto e você oferta conta única"],
+  chat:["Passou informação incorreta ao cliente","Agiu de forma ríspida ou ameaçadora","Linguagem agressiva por escrito","Ignorou mensagem / encerramento sem conclusão","Ofereceu desconto fora da regra","Enviou boleto inválido e finalizou sem verificar"]
+};
+
+const PONTOS=[{r:"Abaixo de 61%",p:"0",c:"var(--red)"},{r:"61% a 70%",p:"300"},{r:"71% a 80%",p:"500"},{r:"81% a 90%",p:"700"},{r:"91% a 99%",p:"1.000"},{r:"100%",p:"1.100",c:"var(--green)"}];
+const FAIXAS=[{pct:61,label:"Regular"},{pct:81,label:"Bom"},{pct:91,label:"Excelente"},{pct:100,label:"100%"}];
+
+let curTab='todas', curCh='ligacao', favFilter=false;
+const chkState={items:{},zeradores:{}};
+const favs=new Set();
+const secOpen={};
+
+// ─ checklist ─
+function toggleSec(ci){
+  secOpen[ci]=!secOpen[ci];
+  document.getElementById(`sec-wrap-${ci}`).className='chk-items'+(secOpen[ci]?' open':'');
+  const chev=document.getElementById(`sec-chev-${ci}`);
+  if(chev) chev.style.transform=secOpen[ci]?'rotate(180deg)':'';
+}
+
+function toggleChk(key,type){
+  if(type==='zer'){
+    chkState.zeradores[key]=!chkState.zeradores[key];
+    if(chkState.zeradores[key]){
+      const panel=document.getElementById('score-panel');
+      panel.classList.remove('flash-red');
+      void panel.offsetWidth;
+      panel.classList.add('flash-red');
+    }
+  } else {
+    chkState.items[key]=!chkState.items[key];
+  }
+  updateChecklist();
+}
+
+function resetChecklist(){
+  Object.keys(chkState.items).forEach(k=>chkState.items[k]=false);
+  Object.keys(chkState.zeradores).forEach(k=>chkState.zeradores[k]=false);
+  updateChecklist();
+}
+
+function checkSvg(){ return `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+function xSvg(){ return `<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 3l4 4M7 3l-4 4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>`; }
+
+function updateChecklist(){
+  let totalPts=0, earnedPts=0;
+  const anyZero=Object.values(chkState.zeradores).some(v=>v);
+
+  CRIT_LIG.forEach((crit,ci)=>{
+    let cnt=0;
+    crit.items.forEach((_,ii)=>{
+      const checked=!!chkState.items[`${ci}-${ii}`];
+      if(checked) cnt++;
+      const el=document.getElementById(`chki-${ci}-${ii}`);
+      const bx=document.getElementById(`chkb-${ci}-${ii}`);
+      const tx=document.getElementById(`chkt-${ci}-${ii}`);
+      if(el) el.className='chk-item'+(checked?' checked':'');
+      if(bx) bx.className='chk-box'+(checked?' on':'');
+      if(tx) tx.className='chk-text'+(checked?' on':'');
+    });
+    const earned=Math.round((cnt/crit.items.length)*crit.peso);
+    totalPts+=crit.peso; earnedPts+=earned;
+    const bd=document.getElementById(`chk-sec-badge-${ci}`);
+    const fill=document.getElementById(`chk-sec-fill-${ci}`);
+    if(bd){bd.textContent=`${cnt}/${crit.items.length}`;bd.className='chk-badge'+(cnt===crit.items.length?' full':'');}
+    if(fill) fill.style.width=Math.round((cnt/crit.items.length)*100)+'%';
+  });
+
+  ZERADORES.ligacao.forEach((_,zi)=>{
+    const checked=!!chkState.zeradores[`zer-${zi}`];
+    const el=document.getElementById(`zeri-${zi}`);
+    const bx=document.getElementById(`zerb-${zi}`);
+    if(el) el.className='zer-item'+(checked?' active':'');
+    if(bx) bx.className='zer-box'+(checked?' on':'');
+  });
+
+  const final=anyZero?0:earnedPts;
+  const pct=Math.round((final/totalPts)*100);
+
+  let hintHtml='';
+  if(!anyZero && earnedPts>0){
+    const proxima=FAIXAS.find(f=>pct<f.pct);
+    if(proxima){
+      const ptsFaltam=Math.ceil((proxima.pct/100)*totalPts)-earnedPts;
+      hintHtml=`Faltam <span>${ptsFaltam} pts</span> para <span>${proxima.label}</span>`;
+    } else {
+      hintHtml=`<span>Pontuação máxima atingida!</span>`;
+    }
+  }
+  document.getElementById('next-hint').innerHTML=hintHtml;
+
+  let color='var(--green)',label='Marque os critérios cumpridos',fillColor='var(--green-mid)';
+  if(anyZero){color='var(--red)';label='Erro crítico — monitoria zerada';fillColor='var(--red)';}
+  else if(earnedPts===0){color='var(--text3)';label='Marque os critérios cumpridos';fillColor='var(--green-mid)';}
+  else if(pct<61){color='var(--amber)';label='Abaixo da meta';fillColor='var(--amber)';}
+  else if(pct<81){color='var(--amber)';label='Regular';fillColor='var(--amber)';}
+  else if(pct<91){color='var(--green)';label='Bom';}
+  else{color='var(--green)';label='Excelente!';}
+
+  document.getElementById('chk-score').textContent=final;
+  document.getElementById('chk-pct').textContent=pct+'%';
+  document.getElementById('chk-fill').style.width=pct+'%';
+  document.getElementById('chk-fill').style.background=fillColor;
+  document.getElementById('chk-status').textContent=label;
+  document.getElementById('chk-status').style.color=color;
+  document.getElementById('chk-score').style.color=color;
+  document.getElementById('chk-pct').style.color=color;
+  document.getElementById('hdr-score').textContent=pct+'%';
+  document.getElementById('hdr-score').style.color=color;
+}
+
+function buildChecklist(){
+  document.getElementById('chk-criterios').innerHTML=CRIT_LIG.map((crit,ci)=>`
+    <div class="chk-section">
+      <div class="chk-header" onclick="toggleSec(${ci})">
+        <div class="chk-header-text">
+          <span class="chk-title">${crit.title}</span>
+          ${crit.desc?`<span class="chk-desc">${crit.desc}</span>`:''}
+        </div>
+        <span class="chk-badge" id="chk-sec-badge-${ci}">0/${crit.items.length}</span>
+        <svg id="sec-chev-${ci}" width="16" height="16" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;color:var(--text3);transition:transform .2s;">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="chk-sec-bar"><div class="chk-sec-fill" id="chk-sec-fill-${ci}" style="width:0%"></div></div>
+      <div class="chk-items" id="sec-wrap-${ci}">
+        ${crit.items.map((item,ii)=>`
+          <div class="chk-item" id="chki-${ci}-${ii}" onclick="toggleChk('${ci}-${ii}','item')">
+            <div class="chk-box" id="chkb-${ci}-${ii}">${checkSvg()}</div>
+            <span class="chk-text" id="chkt-${ci}-${ii}">${item}</span>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  document.getElementById('chk-zeradores').innerHTML=ZERADORES.ligacao.map((z,zi)=>`
+    <div class="zer-item" id="zeri-${zi}" onclick="toggleChk('zer-${zi}','zer')">
+      <div class="zer-box" id="zerb-${zi}">${xSvg()}</div>
+      <span class="zer-text">${z}</span>
+      <span class="zer-pill">zera</span>
+    </div>`).join('');
+}
+
+// ─ guia ─
+function toggleTeam(id){
+  const panel=document.getElementById('guia-panel-'+id);
+  const btn=document.getElementById('guia-btn-'+id);
+  const open=panel.classList.toggle('open');
+  btn.classList.toggle('open',open);
+  if(open){
+    if(id==='en') renderCards('todas','');
+    else renderTeamCards(id);
+  }
+}
+
+function renderTeamCards(id){
+  const map={iv:OBJ_IV,az:OBJ_AZ};
+  const data=map[id];
+  const q=(document.getElementById('si-'+id)||{}).value||'';
+  const area=document.getElementById('ca-'+id);
+  if(!area) return;
+  let f=data.filter(o=>!q||o.title.toLowerCase().includes(q.toLowerCase())||o.arg.toLowerCase().includes(q.toLowerCase()));
+  if(!f.length){area.innerHTML=`<div class="empty-state">Nenhuma objeção encontrada.</div>`;return;}
+  area.innerHTML=`<div class="cards-group">${f.map(o=>`
+    <div class="obj-card">
+      <div class="obj-card-h" onclick="tog('tb${id}${o.id}','tc${id}${o.id}')">
+        <span class="obj-title">${o.title}</span>
+        <svg class="chev-icon" id="tc${id}${o.id}" viewBox="0 0 16 16" fill="none">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="obj-card-body" id="tb${id}${o.id}">
+        <p class="detail-label">Argumentação</p>
+        <p class="detail-text" style="white-space:pre-line;">${o.arg}</p>
+        <p class="detail-label">Script sugerido</p>
+        <div class="script-block">"${o.sc}"</div>
+        ${o.al?`<div class="warn-block"><strong>Atenção:</strong> ${o.al}</div>`:''}
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+// ─ tabs ─
+function setTab(t,btn){
+  curTab=t;
+  document.querySelectorAll('#pg-guia .tab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('si').value='';
+  const showS=(t!=='estados'&&t!=='monitoria');
+  document.getElementById('sb').style.display=showS?'block':'none';
+  document.getElementById('ca').style.display=showS?'block':'none';
+  document.getElementById('sa').style.display=t==='estados'?'block':'none';
+  document.getElementById('ma').style.display=t==='monitoria'?'block':'none';
+  if(t==='estados') renderStates();
+  else if(t==='monitoria') renderMon();
+  else renderCards(t,'');
+}
+
+function filterCards(){ renderCards(curTab, document.getElementById('si').value.toLowerCase()); }
+
+function setFavFilter(onlyFav,btn){
+  favFilter=onlyFav;
+  document.getElementById('fav-all-btn').className='fav-btn-strip'+(onlyFav?'':' on');
+  document.getElementById('fav-only-btn').className='fav-btn-strip'+(onlyFav?' on':'');
+  renderCards(curTab, document.getElementById('si').value.toLowerCase());
+}
+
+function toggleFav(id,e){
+  e.stopPropagation();
+  if(favs.has(id)) favs.delete(id); else favs.add(id);
+  const btn=document.getElementById('fav-'+id);
+  if(btn) btn.className='fav-star'+(favs.has(id)?' on':'');
+  if(favFilter) renderCards(curTab, document.getElementById('si').value.toLowerCase());
+}
+
+function renderCards(tab,q){
+  let f=OBJ;
+  if(tab!=='todas') f=f.filter(o=>o.tag===tab);
+  if(q) f=f.filter(o=>o.title.toLowerCase().includes(q)||o.arg.toLowerCase().includes(q)||o.sc.toLowerCase().includes(q));
+  if(favFilter) f=f.filter(o=>favs.has(o.id));
+  f=[...f.filter(o=>favs.has(o.id)),...f.filter(o=>!favs.has(o.id))];
+  const area=document.getElementById('ca');
+  if(!f.length){
+    area.innerHTML=`<div class="empty-state">${favFilter?'Nenhuma objeção marcada como favorita.':'Nenhuma objeção encontrada.'}</div>`;
+    return;
+  }
+  area.innerHTML=`<div class="cards-group">${f.map(o=>`
+    <div class="obj-card">
+      <div class="obj-card-h" onclick="tog('b${o.id}','c${o.id}')">
+        <span class="obj-title">${o.title}</span>
+        <button class="fav-star${favs.has(o.id)?' on':''}" id="fav-${o.id}" onclick="toggleFav(${o.id},event)">⭐</button>
+        <svg class="chev-icon" id="c${o.id}" viewBox="0 0 16 16" fill="none">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="obj-card-body" id="b${o.id}">
+        <p class="detail-label">Argumentação</p>
+        <p class="detail-text" style="white-space:pre-line;">${o.arg}</p>
+        <p class="detail-label">Script sugerido</p>
+        <div class="script-block">"${o.sc}"</div>
+        ${o.al?`<div class="warn-block"><strong>Atenção:</strong> ${o.al}</div>`:''}
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function tog(bid,cid){
+  document.getElementById(bid).classList.toggle('o');
+  document.getElementById(cid).classList.toggle('o');
+}
+
+function renderStates(){
+  document.getElementById('sa').innerHTML=STATES.map(s=>`
+    <div class="state-card">
+      <div class="state-name">${s.s}</div>
+      <div class="state-discount">Desconto: ${s.d}</div>
+      ${s.r.map(r=>`<div class="state-row"><div class="dot ${r.ok?'ok':'no'}"></div><span>${r.t}</span></div>`).join('')}
+    </div>`).join('');
+}
+
+function setCh(ch,btn){
+  curCh=ch;
+  document.querySelectorAll('#pg-guia .cht').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderMonCriteria();
+}
+
+function renderMonCriteria(){
+  const criteria=curCh==='ligacao'?CRIT_LIG:CRIT_CHAT;
+  const zers=ZERADORES[curCh];
+  const total=criteria.reduce((s,c)=>s+c.peso,0);
+  document.getElementById('mc').innerHTML=criteria.map((c,i)=>`
+    <div class="mon-card">
+      <div class="mon-header" onclick="tog('mb${curCh}${i}','mc${curCh}${i}')">
+        <span class="mon-title">${c.title}</span>
+        <span class="badge-pill ${c.bc}">${c.peso} pts</span>
+        <svg class="chev-icon" id="mc${curCh}${i}" viewBox="0 0 16 16" fill="none">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="mon-body" id="mb${curCh}${i}">
+        <div class="mon-pbar"><div class="mon-pbar-fill" style="width:${c.peso}%"></div></div>
+        <ul class="mon-items">${c.items.map(it=>`<li>${it}</li>`).join('')}</ul>
+      </div>
+    </div>`).join('')+
+    `<div style="display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--border2);margin-top:4px;">
+       <span style="font-size:13px;color:var(--text2);">Total</span>
+       <span style="font-size:14px;font-weight:600;color:var(--green);">${total} pts</span>
+     </div>`;
+
+  document.getElementById('mz').innerHTML=`<div class="zer-table">
+    ${zers.map(z=>`<div class="crit-row" style="padding:10px 14px;">
+      <span style="font-size:13px;color:var(--text2);flex:1;">${z}</span>
+      <span class="badge-pill red">−100 pts</span>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderMon(){
+  document.getElementById('ma').innerHTML=`
+    <div class="mon-msec">
+      <p class="mon-sec-label">Canal</p>
+      <div class="ch-tabs">
+        <button class="cht on" onclick="setCh('ligacao',this)">Ligação</button>
+        <button class="cht" onclick="setCh('chat',this)">Chat</button>
+      </div>
+      <p class="mon-sec-label">Critérios avaliados</p>
+      <div id="mc"></div>
+    </div>
+    <div class="mon-msec">
+      <p class="mon-sec-label" style="color:var(--red);opacity:.7;">Erros críticos</p>
+      <div id="mz"></div>
+    </div>
+    <div class="mon-msec">
+      <p class="mon-sec-label">Pontos mensais</p>
+      <div class="pts-table">
+        ${PONTOS.map(r=>`<div class="pts-row" style="padding:9px 14px;">
+          <span style="font-size:13px;color:var(--text2);">${r.r}</span>
+          <span style="font-size:13px;font-weight:500;color:${r.c||'var(--text)'};">${r.p} pts</span>
+        </div>`).join('')}
+      </div>
+      <p style="font-size:11px;color:var(--text3);margin-top:8px;">2 monitorias/semana · 8 por colaborador/mês</p>
+    </div>`;
+  renderMonCriteria();
+}
+
+buildChecklist();
+renderCards('todas','');
+
+window.filterCards = typeof filterCards!=='undefined' ? filterCards : window.filterCards;
+window.renderTeamCards = typeof renderTeamCards!=='undefined' ? renderTeamCards : window.renderTeamCards;
+window.resetChecklist = typeof resetChecklist!=='undefined' ? resetChecklist : window.resetChecklist;
+window.setCh = typeof setCh!=='undefined' ? setCh : window.setCh;
+window.setFavFilter = typeof setFavFilter!=='undefined' ? setFavFilter : window.setFavFilter;
+window.setTab = typeof setTab!=='undefined' ? setTab : window.setTab;
+window.tog = typeof tog!=='undefined' ? tog : window.tog;
+window.toggleChk = typeof toggleChk!=='undefined' ? toggleChk : window.toggleChk;
+window.toggleFav = typeof toggleFav!=='undefined' ? toggleFav : window.toggleFav;
+window.toggleSec = typeof toggleSec!=='undefined' ? toggleSec : window.toggleSec;
+window.toggleTeam = typeof toggleTeam!=='undefined' ? toggleTeam : window.toggleTeam;
 })();
 </script>
 </body>
